@@ -145,49 +145,55 @@
             }
         }
 
-        async function handleRegister() {
-            const u = document.getElementById('username').value;
-            const p = document.getElementById('password').value;
-            const r = document.getElementById('role').value;
-            if(!u || !p) return alert("Please fill in username and password fields.");
-            
-            try {
-                const res = await fetch(`${API_BASE}/auth/register`, {
-                    method: 'POST',
-                    headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({ username: u, password: p, role: r })
-                });
-                const data = await res.json();
-                alert(data.message || data.error);
-            } catch (err) {
-                alert("Cannot connect to backend server. Ensure Render is running.");
-            }
-        }
+async function handleRegister() {
+    const inputUser = document.getElementById('username').value;
+    const inputPass = document.getElementById('password').value;
+    const inputRole = document.getElementById('role').value;
+    
+    if(!inputUser || !inputPass) {
+        return alert("Please fill in username and password fields.");
+    }
+    
+    try {
+        const res = await fetch(`${API_BASE}/auth/register`, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ username: inputUser, password: inputPass, role: inputRole })
+        });
+        const data = await res.json();
+        alert(data.message || data.error);
+    } catch (err) {
+        alert("Cannot connect to backend server. Ensure Render is running.");
+    }
+}
 
-        async function handleLogin() {
-            const u = document.getElementById('username').value;
-            const p = document.getElementById('password').value;
-            if(!u || !p) return alert("Please fill in your credentials.");
+async function handleLogin() {
+    const inputUser = document.getElementById('username').value;
+    const inputPass = document.getElementById('password').value;
+    
+    if(!inputUser || !inputPass) {
+        return alert("Please fill in your credentials.");
+    }
 
-            try {
-                const res = await fetch(`${API_BASE}/auth/login`, {
-                    method: 'POST',
-                    headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({ username: u, password: p })
-                });
-                const data = await res.json();
-                if (data.token) {
-                    localStorage.setItem('token', data.token);
-                    localStorage.setItem('role', data.role);
-                    localStorage.setItem('username', data.username);
-                    checkExistingSession();
-                } else {
-                    alert(data.error || "Login failed");
-                }
-            } catch (err) {
-                alert("Connection to backend failed.");
-            }
+    try {
+        const res = await fetch(`${API_BASE}/auth/login`, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ username: inputUser, password: inputPass })
+        });
+        const data = await res.json();
+        if (data.token) {
+            localStorage.setItem('token', data.token);
+            localStorage.setItem('role', data.role);
+            localStorage.setItem('username', data.username);
+            checkExistingSession();
+        } else {
+            alert(data.error || "Login failed");
         }
+    } catch (err) {
+        alert("Connection to backend failed.");
+    }
+}
 
         function handleLogout() {
             localStorage.clear();
