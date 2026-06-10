@@ -9,10 +9,84 @@
 <body>
     <header>
         <h1>Go-Work Marketplace</h1>
-        <nav id="nav-links"></nav>
+        <nav id="nav-links">
+            <button onclick="showScreen('auth-screen')">Login / Register</button>
+            <button onclick="showScreen('dashboard-screen'); loadWorkers();">View Workers</button>
+        </nav>
     </header>
+
     <main id="main-content">
+        <section id="auth-screen" class="screen">
+            <h2>Account Access</h2>
+            <div class="form-group">
+                <input type="text" id="username" placeholder="Username">
+                <input type="password" id="password" placeholder="Password">
+                <select id="role">
+                    <option value="worker">I want to Work</option>
+                    <option value="client">I want to Hire</option>
+                </select>
+                <div style="margin-top: 10px;">
+                    <button onclick="handleRegister()">Register</button>
+                    <button onclick="handleLogin()">Login</button>
+                </div>
+            </div>
+        </section>
+
+        <section id="dashboard-screen" class="screen" style="display:none;">
+            <h2>Available Workers</h2>
+            <div id="worker-list">Loading workers...</div>
+        </section>
     </main>
+
     <script src="js/api.js"></script>
+    <script>
+        // Simple Screen Router
+        function showScreen(screenId) {
+            document.querySelectorAll('.screen').forEach(s => s.style.display = 'none');
+            document.getElementById(screenId).style.display = 'block';
+        }
+
+        async function handleRegister() {
+            const u = document.getElementById('username').value;
+            const p = document.getElementById('password').value;
+            const r = document.getElementById('role').value;
+            const res = await registerUser(u, p, r);
+            alert(res.message || res.error || "Registration processed");
+        }
+
+        async function handleLogin() {
+            const u = document.getElementById('username').value;
+            const p = document.getElementById('password').value;
+            const res = await loginUser(u, p);
+            if(res.token) {
+                alert("Login successful!");
+                showScreen('dashboard-screen');
+                loadWorkers();
+            } else {
+                alert(res.error || "Login failed");
+            }
+        }
+
+        async function loadWorkers() {
+            const list = document.getElementById('worker-list');
+            try {
+                const workers = await getWorkers();
+                if(!workers || workers.length === 0) {
+                    list.innerHTML = "<p>No profiles found yet. Be the first to sign up!</p>";
+                    return;
+                }
+                list.innerHTML = workers.map(w => `
+                    <div style="background: white; padding: 15px; margin: 10px 0; border-radius: 5px; box-shadow: 0 2px 4px rgba(0,0,0,0.1);">
+                        <h3>${w.name}</h3>
+                        <p><strong>Skills:</strong> ${w.skills.join(', ')}</p>
+                        <p><strong>Rate:</strong> ₦${w.rate}/hr</p>
+                        <p>${w.bio}</p>
+                    </div>
+                `).join('');
+            } catch(e) {
+                list.innerHTML = "<p>Could not load workers. Check backend connection.</p>";
+            }
+        }
+    </script>
 </body>
 </html>
