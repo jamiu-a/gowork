@@ -9,9 +9,9 @@ const app = express();
 app.use(express.json());
 app.use(cors());
 
-const JWT_SECRET = process.env.JWT_SECRET || 'super_secure_marketplace_secret_key';
+const JWT_SECRET = 'super_secure_marketplace_secret_key_2026';
 
-// Databases Schemas
+// Database Models
 const UserSchema = new mongoose.Schema({
     username: { type: String, required: true, unique: true },
     password: { type: String, required: true },
@@ -30,33 +30,33 @@ const WorkerSchema = new mongoose.Schema({
 const User = mongoose.model('User', UserSchema);
 const Worker = mongoose.model('Worker', WorkerSchema);
 
-// Security Middleware to verify logged-in users
+// Token Verification Middleware
 const authenticateToken = (req, res, next) => {
     const authHeader = req.headers['authorization'];
     const token = authHeader && authHeader.split(' ')[1];
     
-    if (!token) return res.status(401).json({ error: "Access denied. Token missing." });
+    if (!token) return res.status(401).json({ error: "Authorization token missing." });
 
     jwt.verify(token, JWT_SECRET, (err, user) => {
-        if (err) return res.status(403).json({ error: "Invalid or expired token." });
+        if (err) return res.status(403).json({ error: "Session expired or invalid." });
         req.user = user;
         next();
     });
 };
 
-// AUTH API ROUTES
+// Authentication Endpoints
 app.post('/api/auth/register', async (req, res) => {
     try {
         const { username, password, role } = req.body;
-        if(!username || !password || !role) {
+        if (!username || !password || !role) {
             return res.status(400).json({ error: "All fields are required." });
         }
         const hashedPassword = await bcrypt.hash(password, 10);
         const user = new User({ username, password: hashedPassword, role });
         await user.save();
-        res.status(201).json({ message: "Registration successful! You can now log in." });
+        res.status(201).json({ message: "Account created successfully! You can now log in." });
     } catch (err) {
-        res.status(500).json({ error: err.code === 11000 ? "Username already exists." : err.message });
+        res.status(500).json({ error: err.code === 11000 ? "Username is already taken." : err.message });
     }
 });
 
@@ -65,7 +65,7 @@ app.post('/api/auth/login', async (req, res) => {
         const { username, password } = req.body;
         const user = await User.findOne({ username });
         if (!user || !(await bcrypt.compare(password, user.password))) {
-            return res.status(400).json({ error: "Invalid username or password." });
+            return res.status(400).json({ error: "Invalid credentials matched." });
         }
         const token = jwt.sign({ id: user._id, role: user.role }, JWT_SECRET, { expiresIn: '24h' });
         res.json({ token, role: user.role, username: user.username });
@@ -74,20 +74,14 @@ app.post('/api/auth/login', async (req, res) => {
     }
 });
 
-// WORKER PROFILES API ROUTES
-// Get all profiles with optional search queries
+// Freelancer Profile Management Endpoints
 app.get('/api/workers', async (req, res) => {
     try {
         const { skill, maxRate } = req.query;
         let filters = {};
-
-        if (skill) {
-            filters.skills = { $regex: skill, $options: 'i' };
-        }
-        if (maxRate) {
-            filters.rate = { $lte: Number(maxRate) };
-        }
-
+        if (skill) filters.skills = { $regex: skill, $options: 'i' };
+        if (maxRate) filters.rate = { $lte: Number(maxRate) };
+        
         const workers = await Worker.find(filters);
         res.json(workers);
     } catch (err) {
@@ -95,41 +89,34 @@ app.get('/api/workers', async (req, res) => {
     }
 });
 
-// Fetch a single profile for the logged in worker
 app.get('/api/workers/me', authenticateToken, async (req, res) => {
     try {
-        let worker = await Worker.findOne({ userId: req.user.id });
-        if (!worker) {
-            return res.json({ profileMissing: true });
-        }
+        const worker = await Worker.findOne({ userId: req.user.id });
+        if (!worker) return res.json({ profileMissing: true });
         res.json(worker);
     } catch (err) {
         res.status(500).json({ error: err.message });
     }
 });
 
-// Create or update a profile
 app.post('/api/workers', authenticateToken, async (req, res) => {
     try {
         const { name, title, skills, rate, bio } = req.body;
-        
-        // Parse comma-separated string into a clean array
         const skillsArray = Array.isArray(skills) ? skills : skills.split(',').map(s => s.trim()).filter(s => s);
 
-        let worker = await Worker.findOneAndUpdate(
+        const worker = await Worker.findOneAndUpdate(
             { userId: req.user.id },
             { name, title, skills: skillsArray, rate: Number(rate), bio },
             { new: true, upsert: true }
         );
-        
-        res.status(200).json({ message: "Profile saved successfully!", worker });
+        res.status(200).json({ message: "Profile saved securely!", worker });
     } catch (err) {
         res.status(500).json({ error: err.message });
     }
 });
 
-// Production Cluster Connection
+// Production Startup Connection
 const PORT = process.env.PORT || 5000;
 mongoose.connect('mongodb+srv://goworkuser:GoWorkPass2026@cluster0.5j9esgc.mongodb.net/gowork?retryWrites=true&w=majority')
-    .then(() => app.listen(PORT, "0.0.0.0", () => console.log(`Server running on port ${PORT}`)))
-    .catch(err => console.error("Database connection failure:", err));
+    .then(() => app.listen(PORT, "0.0.0.0", () => console.log(`Server configuration running on port ${PORT}`)))
+    .catch(err => console.error("Database connection fault:", err));

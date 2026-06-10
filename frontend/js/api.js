@@ -1,7 +1,6 @@
-// REPLACE with your live unique Render URL link if different!
+// Change this line to use your real live Render domain link (e.g., https://gowork-backend-xxxx.onrender.com/api)
 const API_BASE = 'https://gowork-backend.onrender.com/api';
 
-// Helper function to bundle authorization token headers
 function getAuthHeaders() {
     const token = localStorage.getItem('token');
     return {
