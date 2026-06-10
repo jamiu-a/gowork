@@ -2,7 +2,7 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <title>Go-Work | Premium Talent Marketplace</title>
     <link rel="stylesheet" href="css/styles.css">
 </head>
@@ -16,7 +16,7 @@
     </header>
 
     <main id="main-content">
-        <section id="auth-screen" class="screen">
+        <section id="auth-screen" class="screen visible">
             <div class="card card-center">
                 <h2>Welcome to Go-Work</h2>
                 <p style="color: #666; margin-bottom: 20px;">Join our community of professional freelancers and businesses</p>
@@ -42,7 +42,7 @@
             </div>
         </section>
 
-        <section id="client-screen" class="screen" style="display:none;">
+        <section id="client-screen" class="screen">
             <div class="search-filter-bar">
                 <h2>Find Professional Freelancers</h2>
                 <div class="filter-inputs">
@@ -53,7 +53,7 @@
             <div id="worker-grid" class="grid-layout"></div>
         </section>
 
-        <section id="worker-screen" class="screen" style="display:none;">
+        <section id="worker-screen" class="screen">
             <div class="dashboard-container">
                 <div class="card">
                     <h2>Manage Your Professional Profile</h2>
@@ -88,7 +88,6 @@
         </section>
     </main>
 
-
     <script src="js/api.js"></script>
     
     <script>
@@ -113,9 +112,13 @@
             }
         }
 
+        // STABILIZED DISPLAY ROUTING FIX
         function showScreen(screenId) {
-            document.querySelectorAll('.screen').forEach(s => s.style.display = 'none');
-            document.getElementById(screenId).style.display = 'block';
+            document.querySelectorAll('.screen').forEach(s => s.classList.remove('visible'));
+            const activeScreen = document.getElementById(screenId);
+            if (activeScreen) {
+                activeScreen.classList.add('visible');
+            }
             renderNavigation();
         }
 
@@ -127,10 +130,12 @@
 
             if (token) {
                 nav.innerHTML = `
-                    <span class="user-badge" style="color:#cbd5e1; margin-right:15px;">Logged in: <strong>${username}</strong></span>
-                    ${role === 'client' ? `<button class="btn btn-secondary" style="padding:5px 10px; margin-right:5px;" onclick="showScreen('client-screen'); loadDiscoveryFeed();">Find Talent</button>` : ''}
-                    ${role === 'worker' ? `<button class="btn btn-secondary" style="padding:5px 10px; margin-right:5px;" onclick="showScreen('worker-screen'); loadWorkerDashboardData();">My Profile</button>` : ''}
-                    <button class="btn btn-danger" style="padding:5px 10px;" onclick="handleLogout()">Logout</button>
+                    <span class="user-badge">Logged in: <strong>${username}</strong></span>
+                    <div class="nav-buttons-group">
+                        ${role === 'client' ? `<button class="btn btn-secondary nav-action" onclick="showScreen('client-screen'); loadDiscoveryFeed();">Find Talent</button>` : ''}
+                        ${role === 'worker' ? `<button class="btn btn-secondary nav-action" onclick="showScreen('worker-screen'); loadWorkerDashboardData();">My Profile</button>` : ''}
+                        <button class="btn btn-danger nav-action" onclick="handleLogout()">Logout</button>
+                    </div>
                 `;
             } else {
                 nav.innerHTML = `<button class="btn btn-secondary" onclick="showScreen('auth-screen')">Login / Join</button>`;
@@ -144,7 +149,6 @@
             if(!u || !p) return alert("Please fill in username and password fields.");
             
             try {
-                // Calls the clean function inside api.js
                 const data = await registerUser(u, p, r);
                 alert(data.message || data.error);
             } catch (err) {
@@ -158,7 +162,6 @@
             if(!u || !p) return alert("Please fill in your credentials.");
 
             try {
-                // Calls the clean function inside api.js
                 const data = await loginUser(u, p);
                 if (data.token) {
                     checkExistingSession();
