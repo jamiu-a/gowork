@@ -12,8 +12,7 @@
             <h1>Go-Work</h1>
             <span>Talent Marketplace</span>
         </div>
-        <nav id="nav-links">
-            </nav>
+        <nav id="nav-links"></nav>
     </header>
 
     <main id="main-content">
@@ -51,16 +50,14 @@
                     <input type="number" id="filter-rate" placeholder="Max hourly rate (₦)" oninput="loadDiscoveryFeed()">
                 </div>
             </div>
-            <div id="worker-grid" class="grid-layout">
-                </div>
+            <div id="worker-grid" class="grid-layout"></div>
         </section>
 
         <section id="worker-screen" class="screen" style="display:none;">
             <div class="dashboard-container">
                 <div class="card">
                     <h2>Manage Your Professional Profile</h2>
-                    <p style="color: #666; margin-bottom: 20px;">Keep your profile up to date to attract high-paying clients.</p>
-                    
+                    <p style="color: #666; margin-bottom: 20px;">Keep your profile up to date to attract clients.</p>
                     <div class="form-row">
                         <div class="form-group">
                             <label>Full Display Name</label>
@@ -71,32 +68,38 @@
                             <input type="text" id="w-title" placeholder="e.g. Lead Network Engineer">
                         </div>
                     </div>
-
                     <div class="form-row">
                         <div class="form-group">
                             <label>Core Skills (Separated by commas)</label>
-                            <input type="text" id="w-skills" placeholder="e.g. Linux, Cybersecurity, Python">
+                            <input type="text" id="w-skills" placeholder="e.g. Linux, Cybersecurity">
                         </div>
                         <div class="form-group">
                             <label>Hourly Billing Rate (₦ / Hour)</label>
                             <input type="number" id="w-rate" placeholder="e.g. 5000">
                         </div>
                     </div>
-
                     <div class="form-group">
-                        <label>Professional Biography & Background Summary</label>
-                        <textarea id="w-bio" rows="5" placeholder="Describe your experience, certifications, past achievements..."></textarea>
+                        <label>Professional Biography</label>
+                        <textarea id="w-bio" rows="5" placeholder="Describe your experience..."></textarea>
                     </div>
-
                     <button class="btn btn-primary" onclick="handleSaveProfile()">Save and Publish Profile</button>
                 </div>
             </div>
         </section>
     </main>
 
-    <script src="js/api.js"></script>
     <script>
-        // Automatic session restorer on boot
+        // CHANGE THIS URL TO YOUR EXACT RENDER BACKEND URL LINK
+        const API_BASE = 'https://gowork-backend.onrender.com/api';
+
+        function getAuthHeaders() {
+            const token = localStorage.getItem('token');
+            return {
+                'Content-Type': 'application/json',
+                'Authorization': token ? `Bearer ${token}` : ''
+            };
+        }
+
         window.addEventListener('DOMContentLoaded', () => {
             renderNavigation();
             checkExistingSession();
@@ -132,13 +135,13 @@
 
             if (token) {
                 nav.innerHTML = `
-                    <span class="user-badge">Logged in as: <strong>${username} (${role})</strong></span>
-                    ${role === 'client' ? `<button class="btn btn-nav" onclick="showScreen('client-screen'); loadDiscoveryFeed();">Find Talent</button>` : ''}
-                    ${role === 'worker' ? `<button class="btn btn-nav" onclick="showScreen('worker-screen'); loadWorkerDashboardData();">My Profile</button>` : ''}
-                    <button class="btn btn-danger" onclick="handleLogout()">Logout</button>
+                    <span class="user-badge" style="color:#cbd5e1; margin-right:15px;">Logged in: <strong>${username}</strong></span>
+                    ${role === 'client' ? `<button class="btn btn-secondary" style="padding:5px 10px; margin-right:5px;" onclick="showScreen('client-screen'); loadDiscoveryFeed();">Find Talent</button>` : ''}
+                    ${role === 'worker' ? `<button class="btn btn-secondary" style="padding:5px 10px; margin-right:5px;" onclick="showScreen('worker-screen'); loadWorkerDashboardData();">My Profile</button>` : ''}
+                    <button class="btn btn-danger" style="padding:5px 10px;" onclick="handleLogout()">Logout</button>
                 `;
             } else {
-                nav.innerHTML = `<button class="btn btn-nav" onclick="showScreen('auth-screen')">Login / Join</button>`;
+                nav.innerHTML = `<button class="btn btn-secondary" onclick="showScreen('auth-screen')">Login / Join</button>`;
             }
         }
 
@@ -148,11 +151,16 @@
             const r = document.getElementById('role').value;
             if(!u || !p) return alert("Please fill in username and password fields.");
             
-            const res = await registerUser(u, p, r);
-            if(res.error) {
-                alert(res.error);
-            } else {
-                alert(res.message);
+            try {
+                const res = await fetch(`${API_BASE}/auth/register`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ username: u, password: p, role: r })
+                });
+                const data = await res.json();
+                alert(data.message || data.error);
+            } catch (err) {
+                alert("Cannot connect to backend server. Ensure Render is running.");
             }
         }
 
@@ -161,11 +169,23 @@
             const p = document.getElementById('password').value;
             if(!u || !p) return alert("Please fill in your credentials.");
 
-            const res = await loginUser(u, p);
-            if(res.error) {
-                alert(res.error);
-            } else {
-                checkExistingSession();
+            try {
+                const res = await fetch(`${API_BASE}/auth/login`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ username: u, password: p })
+                });
+                const data = await res.json();
+                if (data.token) {
+                    localStorage.setItem('token', data.token);
+                    localStorage.setItem('role', data.role);
+                    localStorage.setItem('username', data.username);
+                    checkExistingSession();
+                } else {
+                    alert(data.error || "Login failed");
+                }
+            } catch (err) {
+                alert("Connection to backend failed.");
             }
         }
 
@@ -176,16 +196,18 @@
             document.getElementById('password').value = '';
         }
 
-        // Freelancer Data Fetch and Render
         async function loadWorkerDashboardData() {
-            const res = await getMyProfile();
-            if(res && !res.profileMissing) {
-                document.getElementById('w-name').value = res.name || '';
-                document.getElementById('w-title').value = res.title || '';
-                document.getElementById('w-skills').value = res.skills ? res.skills.join(', ') : '';
-                document.getElementById('w-rate').value = res.rate || '';
-                document.getElementById('w-bio').value = res.bio || '';
-            }
+            try {
+                const res = await fetch(`${API_BASE}/workers/me`, { method: 'GET', headers: getAuthHeaders() });
+                const data = await res.json();
+                if(data && !data.profileMissing) {
+                    document.getElementById('w-name').value = data.name || '';
+                    document.getElementById('w-title').value = data.title || '';
+                    document.getElementById('w-skills').value = data.skills ? data.skills.join(', ') : '';
+                    document.getElementById('w-rate').value = data.rate || '';
+                    document.getElementById('w-bio').value = data.bio || '';
+                }
+            } catch(e) {}
         }
 
         async function handleSaveProfile() {
@@ -198,23 +220,37 @@
             };
 
             if(!profile.name || !profile.skills || !profile.rate) {
-                return alert("Display Name, Skills, and Hourly Rate are required to publish.");
+                return alert("Display Name, Skills, and Hourly Rate are required.");
             }
 
-            const res = await saveProfile(profile);
-            alert(res.message || "Profile successfully updated!");
+            try {
+                const res = await fetch(`${API_BASE}/workers`, {
+                    method: 'POST',
+                    headers: getAuthHeaders(),
+                    body: JSON.stringify(profile)
+                });
+                const data = await res.json();
+                alert(data.message || "Profile updated!");
+            } catch(e) {
+                alert("Error saving profile data.");
+            }
         }
 
-        // Client Discovery Search Engine
         async function loadDiscoveryFeed() {
             const skillQuery = document.getElementById('filter-skill').value;
             const rateQuery = document.getElementById('filter-rate').value;
             const grid = document.getElementById('worker-grid');
 
             try {
-                const workers = await getWorkers(skillQuery, rateQuery);
+                let url = `${API_BASE}/workers?`;
+                if (skillQuery) url += `skill=${encodeURIComponent(skillQuery)}&`;
+                if (rateQuery) url += `maxRate=${rateQuery}`;
+                
+                const res = await fetch(url);
+                const workers = await res.json();
+                
                 if(!workers || workers.length === 0) {
-                    grid.innerHTML = `<div class="empty-notice">No professional talent matches your search criteria yet.</div>`;
+                    grid.innerHTML = `<div class="empty-notice">No professional talent matches your search.</div>`;
                     return;
                 }
 
@@ -229,11 +265,11 @@
                         <div class="skills-wrapper">
                             ${w.skills.map(skill => `<span class="skill-badge">${skill}</span>`).join('')}
                         </div>
-                        <button class="btn btn-primary card-action-btn" onclick="alert('Contacting ${w.name} feature incoming soon!')">Hire Professional</button>
+                        <button class="btn btn-primary" onclick="alert('Contact feature coming soon!')">Hire Professional</button>
                     </div>
                 `).join('');
             } catch(e) {
-                grid.innerHTML = `<div class="empty-notice" style="color:red;">Error updating talent pool. Validate server state.</div>`;
+                grid.innerHTML = `<div class="empty-notice" style="color:red;">Error updating talent pool.</div>`;
             }
         }
     </script>
