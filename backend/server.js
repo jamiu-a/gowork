@@ -68,17 +68,11 @@ app.post('/api/workers', async (req, res) => {
 });
 
 const PORT = process.env.PORT || 5000;
-const mongoURI = process.env.MONGO_URI;
 
-if (!mongoURI) {
-    console.error("CRITICAL ERROR: MONGO_URI environment variable is missing on Render!");
-    process.exit(1);
-}
-
-mongoose.connect(mongoURI)
-    .then(() => {
-        app.listen(PORT, "0.0.0.0", () => console.log(`Server running on port ${PORT}`));
-    })
+// Hardcode the string directly inside the quotes to force it to connect
+mongoose.connect('mongodb+srv://jamiu_akintoye:Ilovemymummy159357.@cluster0.5j9esgc.mongodb.net/gowork?retryWrites=true&w=majority')
+    .then(() => app.listen(PORT, "0.0.0.0", () => console.log(`Server running on port ${PORT}`)))
     .catch(err => {
-        console.error("DATABASE CONNECTION ERROR:", err);
+        console.error("DATABASE CRASH ERROR:", err);
+        process.exit(1);
     });
