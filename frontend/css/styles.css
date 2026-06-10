@@ -1,31 +1,115 @@
+:root {
+    --primary: #2563eb;
+    --primary-dark: #1d4ed8;
+    --bg: #f8fafc;
+    --card: #ffffff;
+    --text: #0f172a;
+    --text-muted: #475569;
+    --border: #e2e8f0;
+}
+
 body {
-    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    font-family: 'Inter', -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
     margin: 0;
     padding: 0;
-    background-color: #f4f7f6;
-    color: #333;
+    background-color: var(--bg);
+    color: var(--text);
 }
+
 header {
-    background-color: #2c3e50;
+    background-color: #0f172a;
     color: white;
-    padding: 1rem 2rem;
+    padding: 1rem 5%;
     display: flex;
     justify-content: space-between;
     align-items: center;
+    box-shadow: 0 4px 6px -1px rgba(0,0,0,0.1);
 }
-main {
-    padding: 2rem;
-    max-width: 1200px;
-    margin: 0 auto;
+
+.logo-area h1 { margin: 0; font-size: 1.5rem; letter-spacing: -0.5px; }
+.logo-area span { font-size: 0.8rem; color: #94a3b8; }
+
+main { padding: 3rem 5%; max-width: 1300px; margin: 0 auto; }
+
+.card {
+    background: var(--card);
+    border: 1px solid var(--border);
+    padding: 2.5rem;
+    border-radius: 12px;
+    box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.05);
 }
-button {
-    background-color: #3498db;
-    color: white;
-    border: none;
-    padding: 0.5rem 1rem;
+
+.card-center { max-width: 450px; margin: 0 auto; }
+
+.form-group { margin-bottom: 1.25rem; display: flex; flex-direction: column; }
+.form-group label { margin-bottom: 0.5rem; font-weight: 500; font-size: 0.9rem; color: var(--text-muted); }
+.form-row { display: grid; grid-template-columns: 1fr 1fr; gap: 20px; }
+
+input, select, textarea {
+    padding: 0.75rem;
+    border: 1px solid var(--border);
+    border-radius: 6px;
+    font-size: 1rem;
+    background: #fff;
+    color: var(--text);
+    transition: all 0.2s;
+}
+
+input:focus, select:focus, textarea:focus {
+    outline: none;
+    border-color: var(--primary);
+    box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.15);
+}
+
+.btn {
+    padding: 0.75rem 1.5rem;
+    font-weight: 500;
+    border-radius: 6px;
     cursor: pointer;
-    border-radius: 4px;
+    border: none;
+    transition: background 0.2s;
 }
-button:hover {
-    background-color: #2980b9;
+
+.btn-primary { background: var(--primary); color: white; }
+.btn-primary:hover { background: var(--primary-dark); }
+.btn-secondary { background: #f1f5f9; color: var(--text); }
+.btn-secondary:hover { background: #e2e8f0; }
+.btn-danger { background: #ef4444; color: white; }
+.btn-danger:hover { background: #dc2626; }
+.btn-nav { background: transparent; color: #cbd5e1; }
+.btn-nav:hover { color: white; }
+
+.button-row { display: flex; gap: 10px; margin-top: 1.5rem; }
+.user-badge { color: #94a3b8; font-size: 0.9rem; margin-right: 15px; }
+
+/* Discovery Board Layout Grid */
+.search-filter-bar { background: white; padding: 2rem; border-radius: 12px; border: 1px solid var(--border); margin-bottom: 2rem; }
+.filter-inputs { display: flex; gap: 15px; margin-top: 1rem; }
+.filter-inputs input { flex: 1; }
+
+.grid-layout {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
+    gap: 25px;
 }
+
+.profile-card {
+    background: white;
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    padding: 1.5rem;
+    display: flex;
+    flex-direction: column;
+    box-shadow: 0 4px 6px -1px rgba(0,0,0,0.02);
+}
+
+.card-header-main { display: flex; justify-content: space-between; align-items: flex-start; }
+.card-header-main h3 { margin: 0; font-size: 1.2rem; }
+.rate-tag { font-weight: 700; color: #16a34a; background: #f0fdf4; padding: 0.25rem 0.5rem; border-radius: 4px; font-size: 0.9rem; }
+.profile-title { margin: 0.25rem 0 1rem 0; color: var(--primary); font-weight: 500; font-size: 1rem; }
+.profile-bio { color: var(--text-muted); font-size: 0.9rem; line-height: 1.5; flex-grow: 1; margin-bottom: 1.5rem; }
+
+.skills-wrapper { display: flex; flex-wrap: wrap; gap: 6px; margin-bottom: 1.5rem; }
+.skill-badge { background: #f1f5f9; color: var(--text-muted); padding: 0.2rem 0.6rem; border-radius: 50px; font-size: 0.8rem; font-weight: 500; }
+.card-action-btn { width: 110%; margin: 0 -5% -5% -5%; border-radius: 0 0 12px 12px; transform: translateY(5%); }
+.empty-notice { text-align: center; color: var(--text-muted); grid-column: 1 / -1; padding: 3rem; font-size: 1.1rem; }

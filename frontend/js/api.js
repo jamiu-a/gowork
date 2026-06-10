@@ -1,4 +1,14 @@
-const API_BASE = 'https://gowork-backend-jb8p.onrender.com/api';
+// REPLACE with your live unique Render URL link if different!
+const API_BASE = 'https://gowork-backend.onrender.com/api';
+
+// Helper function to bundle authorization token headers
+function getAuthHeaders() {
+    const token = localStorage.getItem('token');
+    return {
+        'Content-Type': 'application/json',
+        'Authorization': token ? `Bearer ${token}` : ''
+    };
+}
 
 async function registerUser(username, password, role) {
     const res = await fetch(`${API_BASE}/auth/register`, {
@@ -16,11 +26,36 @@ async function loginUser(username, password) {
         body: JSON.stringify({ username, password })
     });
     const data = await res.json();
-    if (data.token) localStorage.setItem('token', data.token);
+    if (data.token) {
+        localStorage.setItem('token', data.token);
+        localStorage.setItem('role', data.role);
+        localStorage.setItem('username', data.username);
+    }
     return data;
 }
 
-async function getWorkers() {
-    const res = await fetch(`${API_BASE}/workers`);
+async function getWorkers(skill = '', maxRate = '') {
+    let url = `${API_BASE}/workers?`;
+    if (skill) url += `skill=${encodeURIComponent(skill)}&`;
+    if (maxRate) url += `maxRate=${maxRate}`;
+    
+    const res = await fetch(url);
+    return res.json();
+}
+
+async function getMyProfile() {
+    const res = await fetch(`${API_BASE}/workers/me`, {
+        method: 'GET',
+        headers: getAuthHeaders()
+    });
+    return res.json();
+}
+
+async function saveProfile(profileData) {
+    const res = await fetch(`${API_BASE}/workers`, {
+        method: 'POST',
+        headers: getAuthHeaders(),
+        body: JSON.stringify(profileData)
+    });
     return res.json();
 }

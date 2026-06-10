@@ -3,88 +3,237 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Go-Work Platform</title>
+    <title>Go-Work | Premium Talent Marketplace</title>
     <link rel="stylesheet" href="css/styles.css">
 </head>
 <body>
     <header>
-        <h1>Go-Work Marketplace</h1>
+        <div class="logo-area">
+            <h1>Go-Work</h1>
+            <span>Talent Marketplace</span>
+        </div>
         <nav id="nav-links">
-            <button onclick="showScreen('auth-screen')">Login / Register</button>
-            <button onclick="showScreen('dashboard-screen'); loadWorkers();">View Workers</button>
-        </nav>
+            </nav>
     </header>
 
     <main id="main-content">
         <section id="auth-screen" class="screen">
-            <h2>Account Access</h2>
-            <div class="form-group">
-                <input type="text" id="username" placeholder="Username">
-                <input type="password" id="password" placeholder="Password">
-                <select id="role">
-                    <option value="worker">I want to Work</option>
-                    <option value="client">I want to Hire</option>
-                </select>
-                <div style="margin-top: 10px;">
-                    <button onclick="handleRegister()">Register</button>
-                    <button onclick="handleLogin()">Login</button>
+            <div class="card card-center">
+                <h2>Welcome to Go-Work</h2>
+                <p style="color: #666; margin-bottom: 20px;">Join our community of professional freelancers and businesses</p>
+                <div class="form-group">
+                    <label>Username</label>
+                    <input type="text" id="username" placeholder="Enter username">
+                </div>
+                <div class="form-group">
+                    <label>Password</label>
+                    <input type="password" id="password" placeholder="Enter password">
+                </div>
+                <div class="form-group" id="role-container">
+                    <label>Account Type</label>
+                    <select id="role">
+                        <option value="worker">Freelancer (Looking for work)</option>
+                        <option value="client">Client (Looking to hire)</option>
+                    </select>
+                </div>
+                <div class="button-row">
+                    <button class="btn btn-primary" onclick="handleLogin()">Login</button>
+                    <button class="btn btn-secondary" onclick="handleRegister()">Register New Account</button>
                 </div>
             </div>
         </section>
 
-        <section id="dashboard-screen" class="screen" style="display:none;">
-            <h2>Available Workers</h2>
-            <div id="worker-list">Loading workers...</div>
+        <section id="client-screen" class="screen" style="display:none;">
+            <div class="search-filter-bar">
+                <h2>Find Professional Freelancers</h2>
+                <div class="filter-inputs">
+                    <input type="text" id="filter-skill" placeholder="Search by skill (e.g. Java, Design)" oninput="loadDiscoveryFeed()">
+                    <input type="number" id="filter-rate" placeholder="Max hourly rate (₦)" oninput="loadDiscoveryFeed()">
+                </div>
+            </div>
+            <div id="worker-grid" class="grid-layout">
+                </div>
+        </section>
+
+        <section id="worker-screen" class="screen" style="display:none;">
+            <div class="dashboard-container">
+                <div class="card">
+                    <h2>Manage Your Professional Profile</h2>
+                    <p style="color: #666; margin-bottom: 20px;">Keep your profile up to date to attract high-paying clients.</p>
+                    
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label>Full Display Name</label>
+                            <input type="text" id="w-name" placeholder="e.g. John Doe">
+                        </div>
+                        <div class="form-group">
+                            <label>Professional Title</label>
+                            <input type="text" id="w-title" placeholder="e.g. Lead Network Engineer">
+                        </div>
+                    </div>
+
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label>Core Skills (Separated by commas)</label>
+                            <input type="text" id="w-skills" placeholder="e.g. Linux, Cybersecurity, Python">
+                        </div>
+                        <div class="form-group">
+                            <label>Hourly Billing Rate (₦ / Hour)</label>
+                            <input type="number" id="w-rate" placeholder="e.g. 5000">
+                        </div>
+                    </div>
+
+                    <div class="form-group">
+                        <label>Professional Biography & Background Summary</label>
+                        <textarea id="w-bio" rows="5" placeholder="Describe your experience, certifications, past achievements..."></textarea>
+                    </div>
+
+                    <button class="btn btn-primary" onclick="handleSaveProfile()">Save and Publish Profile</button>
+                </div>
+            </div>
         </section>
     </main>
 
     <script src="js/api.js"></script>
     <script>
-        // Simple Screen Router
+        // Automatic session restorer on boot
+        window.addEventListener('DOMContentLoaded', () => {
+            renderNavigation();
+            checkExistingSession();
+        });
+
+        function checkExistingSession() {
+            const token = localStorage.getItem('token');
+            const role = localStorage.getItem('role');
+            if (token && role) {
+                if (role === 'worker') {
+                    showScreen('worker-screen');
+                    loadWorkerDashboardData();
+                } else {
+                    showScreen('client-screen');
+                    loadDiscoveryFeed();
+                }
+            } else {
+                showScreen('auth-screen');
+            }
+        }
+
         function showScreen(screenId) {
             document.querySelectorAll('.screen').forEach(s => s.style.display = 'none');
             document.getElementById(screenId).style.display = 'block';
+            renderNavigation();
+        }
+
+        function renderNavigation() {
+            const nav = document.getElementById('nav-links');
+            const token = localStorage.getItem('token');
+            const role = localStorage.getItem('role');
+            const username = localStorage.getItem('username') || 'Account';
+
+            if (token) {
+                nav.innerHTML = `
+                    <span class="user-badge">Logged in as: <strong>${username} (${role})</strong></span>
+                    ${role === 'client' ? `<button class="btn btn-nav" onclick="showScreen('client-screen'); loadDiscoveryFeed();">Find Talent</button>` : ''}
+                    ${role === 'worker' ? `<button class="btn btn-nav" onclick="showScreen('worker-screen'); loadWorkerDashboardData();">My Profile</button>` : ''}
+                    <button class="btn btn-danger" onclick="handleLogout()">Logout</button>
+                `;
+            } else {
+                nav.innerHTML = `<button class="btn btn-nav" onclick="showScreen('auth-screen')">Login / Join</button>`;
+            }
         }
 
         async function handleRegister() {
             const u = document.getElementById('username').value;
             const p = document.getElementById('password').value;
             const r = document.getElementById('role').value;
+            if(!u || !p) return alert("Please fill in username and password fields.");
+            
             const res = await registerUser(u, p, r);
-            alert(res.message || res.error || "Registration processed");
+            if(res.error) {
+                alert(res.error);
+            } else {
+                alert(res.message);
+            }
         }
 
         async function handleLogin() {
             const u = document.getElementById('username').value;
             const p = document.getElementById('password').value;
+            if(!u || !p) return alert("Please fill in your credentials.");
+
             const res = await loginUser(u, p);
-            if(res.token) {
-                alert("Login successful!");
-                showScreen('dashboard-screen');
-                loadWorkers();
+            if(res.error) {
+                alert(res.error);
             } else {
-                alert(res.error || "Login failed");
+                checkExistingSession();
             }
         }
 
-        async function loadWorkers() {
-            const list = document.getElementById('worker-list');
+        function handleLogout() {
+            localStorage.clear();
+            showScreen('auth-screen');
+            document.getElementById('username').value = '';
+            document.getElementById('password').value = '';
+        }
+
+        // Freelancer Data Fetch and Render
+        async function loadWorkerDashboardData() {
+            const res = await getMyProfile();
+            if(res && !res.profileMissing) {
+                document.getElementById('w-name').value = res.name || '';
+                document.getElementById('w-title').value = res.title || '';
+                document.getElementById('w-skills').value = res.skills ? res.skills.join(', ') : '';
+                document.getElementById('w-rate').value = res.rate || '';
+                document.getElementById('w-bio').value = res.bio || '';
+            }
+        }
+
+        async function handleSaveProfile() {
+            const profile = {
+                name: document.getElementById('w-name').value,
+                title: document.getElementById('w-title').value,
+                skills: document.getElementById('w-skills').value,
+                rate: document.getElementById('w-rate').value,
+                bio: document.getElementById('w-bio').value
+            };
+
+            if(!profile.name || !profile.skills || !profile.rate) {
+                return alert("Display Name, Skills, and Hourly Rate are required to publish.");
+            }
+
+            const res = await saveProfile(profile);
+            alert(res.message || "Profile successfully updated!");
+        }
+
+        // Client Discovery Search Engine
+        async function loadDiscoveryFeed() {
+            const skillQuery = document.getElementById('filter-skill').value;
+            const rateQuery = document.getElementById('filter-rate').value;
+            const grid = document.getElementById('worker-grid');
+
             try {
-                const workers = await getWorkers();
+                const workers = await getWorkers(skillQuery, rateQuery);
                 if(!workers || workers.length === 0) {
-                    list.innerHTML = "<p>No profiles found yet. Be the first to sign up!</p>";
+                    grid.innerHTML = `<div class="empty-notice">No professional talent matches your search criteria yet.</div>`;
                     return;
                 }
-                list.innerHTML = workers.map(w => `
-                    <div style="background: white; padding: 15px; margin: 10px 0; border-radius: 5px; box-shadow: 0 2px 4px rgba(0,0,0,0.1);">
-                        <h3>${w.name}</h3>
-                        <p><strong>Skills:</strong> ${w.skills.join(', ')}</p>
-                        <p><strong>Rate:</strong> ₦${w.rate}/hr</p>
-                        <p>${w.bio}</p>
+
+                grid.innerHTML = workers.map(w => `
+                    <div class="profile-card">
+                        <div class="card-header-main">
+                            <h3>${w.name}</h3>
+                            <span class="rate-tag">₦${w.rate.toLocaleString()}/hr</span>
+                        </div>
+                        <h4 class="profile-title">${w.title}</h4>
+                        <p class="profile-bio">${w.bio || 'No background description provided yet.'}</p>
+                        <div class="skills-wrapper">
+                            ${w.skills.map(skill => `<span class="skill-badge">${skill}</span>`).join('')}
+                        </div>
+                        <button class="btn btn-primary card-action-btn" onclick="alert('Contacting ${w.name} feature incoming soon!')">Hire Professional</button>
                     </div>
                 `).join('');
             } catch(e) {
-                list.innerHTML = "<p>Could not load workers. Check backend connection.</p>";
+                grid.innerHTML = `<div class="empty-notice" style="color:red;">Error updating talent pool. Validate server state.</div>`;
             }
         }
     </script>
