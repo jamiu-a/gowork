@@ -1,4 +1,4 @@
-const API_BASE = 'https://gowork-backend.onrender.com/api';
+const API_BASE = 'https://gowork-backend-jb8p.onrender.com/api';
 
 async function registerUser(username, password, role) {
     const res = await fetch(`${API_BASE}/auth/register`, {
