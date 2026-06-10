@@ -92,7 +92,85 @@ input:focus, select:focus, textarea:focus {
     grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
     gap: 25px;
 }
+/* ==========================================================================
+   MOBILE & TABLET RESPONSIVE STYLES (Breaks safely at 768px wide)
+   ========================================================================== */
+@media (max-width: 768px) {
+    /* Header adjustments */
+    header {
+        flex-direction: column;
+        gap: 15px;
+        text-align: center;
+        padding: 1.5rem 5%;
+    }
 
+    #nav-links {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        gap: 10px;
+        width: 100%;
+    }
+
+    .user-badge {
+        margin-right: 0 !important;
+        margin-bottom: 5px;
+        display: block;
+    }
+
+    #nav-links .btn {
+        width: 100%;
+        box-sizing: border-box;
+    }
+
+    /* Main view scaling */
+    main {
+        padding: 1.5rem 4%;
+    }
+
+    .card {
+        padding: 1.5rem;
+        border-radius: 8px;
+    }
+
+    /* Stack form fields into a single column on mobile */
+    .form-row {
+        grid-template-columns: 1fr;
+        gap: 15px;
+    }
+
+    /* Dynamic Button layouts on mobile */
+    .button-row {
+        flex-direction: column;
+        gap: 12px;
+    }
+
+    .button-row .btn {
+        width: 100%;
+        padding: 0.85rem; /* Marginally larger touch targets for thumbs */
+        font-size: 1.05rem;
+    }
+
+    /* Discovery Filter Bar adjustments */
+    .search-filter-bar {
+        padding: 1.25rem;
+    }
+
+    .filter-inputs {
+        flex-direction: column;
+        gap: 10px;
+    }
+
+    /* Responsive Profile Grid */
+    .grid-layout {
+        grid-template-columns: 1fr; /* Force cards to take up full available width */
+        gap: 20px;
+    }
+    
+    .profile-card {
+        padding: 1.25rem;
+    }
+}
 .profile-card {
     background: white;
     border: 1px solid var(--border);
