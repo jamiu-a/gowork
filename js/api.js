@@ -1,5 +1,5 @@
 // Change this line to use your real live Render domain link (e.g., https://gowork-backend-xxxx.onrender.com/api)
-const API_BASE = 'https://gowork-backend.onrender.com/api';
+const API_BASE = 'https://gowork-backend-jb8p.onrender.com';
 
 function getAuthHeaders() {
     const token = localStorage.getItem('token');
