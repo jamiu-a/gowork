@@ -88,18 +88,10 @@
         </section>
     </main>
 
+
+    <script src="js/api.js"></script>
+    
     <script>
-        // CHANGE THIS URL TO YOUR EXACT RENDER BACKEND URL LINK
-        const API_BASE = 'https://gowork-backend.onrender.com/api';
-
-        function getAuthHeaders() {
-            const token = localStorage.getItem('token');
-            return {
-                'Content-Type': 'application/json',
-                'Authorization': token ? `Bearer ${token}` : ''
-            };
-        }
-
         window.addEventListener('DOMContentLoaded', () => {
             renderNavigation();
             checkExistingSession();
@@ -145,55 +137,38 @@
             }
         }
 
-async function handleRegister() {
-    const inputUser = document.getElementById('username').value;
-    const inputPass = document.getElementById('password').value;
-    const inputRole = document.getElementById('role').value;
-    
-    if(!inputUser || !inputPass) {
-        return alert("Please fill in username and password fields.");
-    }
-    
-    try {
-        const res = await fetch(`${API_BASE}/auth/register`, {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({ username: inputUser, password: inputPass, role: inputRole })
-        });
-        const data = await res.json();
-        alert(data.message || data.error);
-    } catch (err) {
-        alert("Cannot connect to backend server. Ensure Render is running.");
-    }
-}
-
-async function handleLogin() {
-    const inputUser = document.getElementById('username').value;
-    const inputPass = document.getElementById('password').value;
-    
-    if(!inputUser || !inputPass) {
-        return alert("Please fill in your credentials.");
-    }
-
-    try {
-        const res = await fetch(`${API_BASE}/auth/login`, {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({ username: inputUser, password: inputPass })
-        });
-        const data = await res.json();
-        if (data.token) {
-            localStorage.setItem('token', data.token);
-            localStorage.setItem('role', data.role);
-            localStorage.setItem('username', data.username);
-            checkExistingSession();
-        } else {
-            alert(data.error || "Login failed");
+        async function handleRegister() {
+            const u = document.getElementById('username').value;
+            const p = document.getElementById('password').value;
+            const r = document.getElementById('role').value;
+            if(!u || !p) return alert("Please fill in username and password fields.");
+            
+            try {
+                // Calls the clean function inside api.js
+                const data = await registerUser(u, p, r);
+                alert(data.message || data.error);
+            } catch (err) {
+                alert("Cannot connect to backend server. Ensure Render is running.");
+            }
         }
-    } catch (err) {
-        alert("Connection to backend failed.");
-    }
-}
+
+        async function handleLogin() {
+            const u = document.getElementById('username').value;
+            const p = document.getElementById('password').value;
+            if(!u || !p) return alert("Please fill in your credentials.");
+
+            try {
+                // Calls the clean function inside api.js
+                const data = await loginUser(u, p);
+                if (data.token) {
+                    checkExistingSession();
+                } else {
+                    alert(data.error || "Login failed");
+                }
+            } catch (err) {
+                alert("Connection to backend failed.");
+            }
+        }
 
         function handleLogout() {
             localStorage.clear();
@@ -204,8 +179,7 @@ async function handleLogin() {
 
         async function loadWorkerDashboardData() {
             try {
-                const res = await fetch(`${API_BASE}/workers/me`, { method: 'GET', headers: getAuthHeaders() });
-                const data = await res.json();
+                const data = await getMyProfile();
                 if(data && !data.profileMissing) {
                     document.getElementById('w-name').value = data.name || '';
                     document.getElementById('w-title').value = data.title || '';
@@ -230,12 +204,7 @@ async function handleLogin() {
             }
 
             try {
-                const res = await fetch(`${API_BASE}/workers`, {
-                    method: 'POST',
-                    headers: getAuthHeaders(),
-                    body: JSON.stringify(profile)
-                });
-                const data = await res.json();
+                const data = await saveProfile(profile);
                 alert(data.message || "Profile updated!");
             } catch(e) {
                 alert("Error saving profile data.");
@@ -248,12 +217,7 @@ async function handleLogin() {
             const grid = document.getElementById('worker-grid');
 
             try {
-                let url = `${API_BASE}/workers?`;
-                if (skillQuery) url += `skill=${encodeURIComponent(skillQuery)}&`;
-                if (rateQuery) url += `maxRate=${rateQuery}`;
-                
-                const res = await fetch(url);
-                const workers = await res.json();
+                const workers = await getWorkers(skillQuery, rateQuery);
                 
                 if(!workers || workers.length === 0) {
                     grid.innerHTML = `<div class="empty-notice">No professional talent matches your search.</div>`;
