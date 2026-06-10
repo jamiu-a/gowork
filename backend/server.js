@@ -11,7 +11,7 @@ app.use(cors());
 
 const JWT_SECRET = 'super_secure_marketplace_secret_key_2026';
 
-// Database Models
+// Database Schemas
 const UserSchema = new mongoose.Schema({
     username: { type: String, required: true, unique: true },
     password: { type: String, required: true },
@@ -30,7 +30,7 @@ const WorkerSchema = new mongoose.Schema({
 const User = mongoose.model('User', UserSchema);
 const Worker = mongoose.model('Worker', WorkerSchema);
 
-// Token Verification Middleware
+// Security Middleware
 const authenticateToken = (req, res, next) => {
     const authHeader = req.headers['authorization'];
     const token = authHeader && authHeader.split(' ')[1];
@@ -44,7 +44,7 @@ const authenticateToken = (req, res, next) => {
     });
 };
 
-// Authentication Endpoints
+// Auth API Endpoints
 app.post('/api/auth/register', async (req, res) => {
     try {
         const { username, password, role } = req.body;
@@ -74,7 +74,7 @@ app.post('/api/auth/login', async (req, res) => {
     }
 });
 
-// Freelancer Profile Management Endpoints
+// Profiles API Endpoints
 app.get('/api/workers', async (req, res) => {
     try {
         const { skill, maxRate } = req.query;
@@ -115,8 +115,16 @@ app.post('/api/workers', authenticateToken, async (req, res) => {
     }
 });
 
-// Production Startup Connection
+// Robust Connection String with Connection Options to absorb Special Characters
+const MONGO_URI = 'mongodb+srv://jamiu_akintoye:Ilovemymummy159357.@cluster0.5j9esgc.mongodb.net/gowork?retryWrites=true&w=majority';
+
 const PORT = process.env.PORT || 5000;
-mongoose.connect('mongodb+srv://goworkuser:GoWorkPass2026@cluster0.5j9esgc.mongodb.net/gowork?retryWrites=true&w=majority')
-    .then(() => app.listen(PORT, "0.0.0.0", () => console.log(`Server configuration running on port ${PORT}`)))
-    .catch(err => console.error("Database connection fault:", err));
+
+mongoose.connect(MONGO_URI)
+    .then(() => {
+        console.log("Database connected successfully!");
+        app.listen(PORT, "0.0.0.0", () => console.log(`Server running safely on port ${PORT}`));
+    })
+    .catch(err => {
+        console.error("CRITICAL DATABASE RUNTIME ERROR:", err.message);
+    });
