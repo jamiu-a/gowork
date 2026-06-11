@@ -17,7 +17,7 @@ html, body {
     padding: 0;
     background-color: var(--bg);
     color: var(--text);
-    font-family: 'Inter', -apple-system, BlinkMacSystemFont, \"Segoe UI\", Roboto, sans-serif;
+    font-family: 'Inter', -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
     box-sizing: border-box;
 }
 
@@ -46,7 +46,7 @@ main { padding: 3rem 5%; max-width: 1300px; margin: 0 auto; width: 100%; }
 .screen         { display: none; }
 .screen.visible { display: block; }
 
-/* ── Full Screen Auth Section Modifiers ───────────────────────────────────── */
+/* ── Full Screen Auth Section ─────────────────────────────────────────────── */
 #auth-screen {
     position: fixed;
     top: 0;
@@ -124,6 +124,21 @@ main { padding: 3rem 5%; max-width: 1300px; margin: 0 auto; width: 100%; }
     top: 40%;
     left: 45%;
     animation: floatingOrbOne 14s ease-in-out infinite alternate-reverse;
+}
+
+/* Scroll wrapper layer to preserve scrolling integrity over fixed containers */
+.auth-scroll-wrapper {
+    position: absolute;
+    inset: 0;
+    width: 100%;
+    height: 100%;
+    overflow-y: auto;
+    -webkit-overflow-scrolling: touch;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 2rem 1rem;
+    z-index: 5;
 }
 
 /* Premium Ultra-Clear Glassmorphism Card Frame */
@@ -374,7 +389,7 @@ input:focus, select:focus, textarea:focus {
     100% { opacity: 1; transform: scale(1) translateY(0); }
 }
 
-/* ── Mobile responsive ────────────────────────────────────────────────────── */
+/* ── Mobile responsive overrides ──────────────────────────────────────────── */
 @media (max-width: 768px) {
     header {
         flex-direction: column;
@@ -416,4 +431,24 @@ input:focus, select:focus, textarea:focus {
     .toast { max-width: 100%; }
 
     .modal-box { padding: 1.5rem; }
+
+    /* Fix auth screen mobile clipping issues */
+    #auth-screen {
+        position: fixed;
+        height: 100vh;
+        width: 100vw;
+    }
+
+    .auth-scroll-wrapper {
+        padding-top: 5.5rem;
+        padding-bottom: 3rem;
+        align-items: flex-start;
+    }
+
+    .glass-card {
+        margin-top: 0 !important;
+        margin-bottom: 2rem !important;
+        width: 100% !important;
+        max-width: 100% !important;
+    }
 }

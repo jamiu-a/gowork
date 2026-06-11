@@ -72,51 +72,53 @@
                 <div class="glow-orb orb-3"></div>
             </div>
 
-            <div class="card card-center glass-card">
-                <h2>Welcome to Go-Work</h2>
-                <p style="color:#64748b;margin-bottom:1.5rem;">Connect with professional freelancers and businesses across Nigeria.</p>
+            <div class="auth-scroll-wrapper">
+                <div class="card card-center glass-card">
+                    <h2>Welcome to Go-Work</h2>
+                    <p style="color:#64748b;margin-bottom:1.5rem;">Connect with professional freelancers and businesses across Nigeria.</p>
 
-                <div class="auth-tabs">
-                    <button id="tab-login"    class="auth-tab active" onclick="switchTab('login')">Log In</button>
-                    <button id="tab-register" class="auth-tab"        onclick="switchTab('register')">Create Account</button>
-                </div>
+                    <div class="auth-tabs">
+                        <button id="tab-login"    class="auth-tab active" onclick="switchTab('login')">Log In</button>
+                        <button id="tab-register" class="auth-tab"        onclick="switchTab('register')">Create Account</button>
+                    </div>
 
-                <div id="login-form">
-                    <div class="form-group">
-                        <label>Username or Email</label>
-                        <input type="text" id="login-username" placeholder="Enter username or email">
+                    <div id="login-form">
+                        <div class="form-group">
+                            <label>Username or Email</label>
+                            <input type="text" id="login-username" placeholder="Enter username or email">
+                        </div>
+                        <div class="form-group">
+                            <label>Password</label>
+                            <input type="password" id="login-password" placeholder="Enter password" onkeydown="if(event.key==='Enter') handleLogin()">
+                        </div>
+                        <button class="btn btn-primary" style="width:100%;margin-bottom:0.75rem;" onclick="handleLogin()">Log In</button>
+                        <p style="text-align:center;font-size:0.85rem;">
+                            <a href="#" onclick="openForgotModal()" style="color:#2563eb;text-decoration:none;">Forgot your password?</a>
+                        </p>
                     </div>
-                    <div class="form-group">
-                        <label>Password</label>
-                        <input type="password" id="login-password" placeholder="Enter password" onkeydown="if(event.key==='Enter') handleLogin()">
-                    </div>
-                    <button class="btn btn-primary" style="width:100%;margin-bottom:0.75rem;" onclick="handleLogin()">Log In</button>
-                    <p style="text-align:center;font-size:0.85rem;">
-                        <a href="#" onclick="openForgotModal()" style="color:#2563eb;text-decoration:none;">Forgot your password?</a>
-                    </p>
-                </div>
 
-                <div id="register-form" style="display:none;">
-                    <div class="form-group">
-                        <label>Username</label>
-                        <input type="text" id="reg-username" placeholder="Choose a username">
+                    <div id="register-form" style="display:none;">
+                        <div class="form-group">
+                            <label>Username</label>
+                            <input type="text" id="reg-username" placeholder="Choose a username">
+                        </div>
+                        <div class="form-group">
+                            <label>Email address</label>
+                            <input type="email" id="reg-email" placeholder="you@example.com">
+                        </div>
+                        <div class="form-group">
+                            <label>Password <span style="color:#94a3b8;font-weight:400;">(min. 6 characters)</span></label>
+                            <input type="password" id="reg-password" placeholder="Create a password">
+                        </div>
+                        <div class="form-group">
+                            <label>Account Type</label>
+                            <select id="reg-role">
+                                <option value="worker">Freelancer — I'm looking for work</option>
+                                <option value="client">Client — I'm looking to hire</option>
+                            </select>
+                        </div>
+                        <button class="btn btn-primary" style="width:100%;" onclick="handleRegister()">Create Account</button>
                     </div>
-                    <div class="form-group">
-                        <label>Email address</label>
-                        <input type="email" id="reg-email" placeholder="you@example.com">
-                    </div>
-                    <div class="form-group">
-                        <label>Password <span style="color:#94a3b8;font-weight:400;">(min. 6 characters)</span></label>
-                        <input type="password" id="reg-password" placeholder="Create a password">
-                    </div>
-                    <div class="form-group">
-                        <label>Account Type</label>
-                        <select id="reg-role">
-                            <option value="worker">Freelancer — I'm looking for work</option>
-                            <option value="client">Client — I'm looking to hire</option>
-                        </select>
-                    </div>
-                    <button class="btn btn-primary" style="width:100%;" onclick="handleRegister()">Create Account</button>
                 </div>
             </div>
         </section>
