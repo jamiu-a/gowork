@@ -1,3 +1,4 @@
+require('dotenv').config();
 const express = require('express');
 const mongoose = require('mongoose');
 const cors = require('cors');
@@ -251,10 +252,16 @@ app.post('/api/workers', authenticateToken, async (req, res) => {
 });
 
 // ─── START SERVER ─────────────────────────────────────────────────────────────
+const MONGO_URI = process.env.MONGO_URI;
+
+const PORT = process.env.PORT || 5000;
+
 mongoose.connect(MONGO_URI)
     .then(() => {
-        console.log('Database connected!');
-        const PORT = process.env.PORT || 5000;
-        app.listen(PORT, '0.0.0.0', () => console.log(`Server running on port ${PORT}`));
+        console.log("Database connected successfully!");
+        app.listen(PORT, "0.0.0.0", () => console.log(`Server running safely on port ${PORT}`));
     })
-    .catch(err => console.error('DB connection error:', err.message));
+    .catch(err => {
+        console.error("CRITICAL DATABASE RUNTIME ERROR:", err.message);
+        process.exit(1); // This causes status 1 if the URI breaks or is undefined
+    });
