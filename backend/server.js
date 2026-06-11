@@ -252,7 +252,6 @@ app.post('/api/workers', authenticateToken, async (req, res) => {
 });
 
 // ─── START SERVER ─────────────────────────────────────────────────────────────
-const MONGO_URI = process.env.MONGO_URI;
 
 const PORT = process.env.PORT || 5000;
 
