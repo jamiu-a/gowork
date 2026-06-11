@@ -179,7 +179,6 @@
 
     <script>
         window.addEventListener('DOMContentLoaded', () => {
-            renderNavigation();
             checkResetToken();   
             checkExistingSession();
         });
@@ -236,15 +235,15 @@
 
             if (token) {
                 nav.innerHTML = `
-                    <span class="user-badge">Logged in as <strong>${username}</strong></span>
                     <div class="nav-buttons-group">
+                        <span class="user-badge">Hi, <strong>${username}</strong></span>
                         ${role === 'client' ? `<button class="btn btn-secondary nav-action" onclick="showScreen('client-screen'); loadDiscoveryFeed();">Find Talent</button>` : ''}
                         ${role === 'worker' ? `<button class="btn btn-secondary nav-action" onclick="showScreen('worker-screen'); loadWorkerDashboardData();">My Profile</button>` : ''}
                         <button class="btn btn-danger nav-action" onclick="handleLogout()">Logout</button>
                     </div>
                 `;
             } else {
-                nav.innerHTML = `<button class="btn btn-secondary" onclick="showScreen('auth-screen')">Login / Join</button>`;
+                nav.innerHTML = `<button class="btn btn-secondary" onclick="showScreen('auth-screen')">Login/Join</button>`;
             }
         }
 
@@ -284,10 +283,11 @@
             try {
                 const data = await loginUser(username, password);
                 if (data.token) {
-                    // Update session data immediately to avoid looping states
                     localStorage.setItem('token', data.token);
                     localStorage.setItem('role', data.role);
-                    localStorage.setItem('username', data.username);
+                    localStorage.setItem('username', data.username || username);
+                    
+                    // Route to proper view right away
                     checkExistingSession();
                 } else {
                     showToast(data.error || 'Login failed. Check your credentials.', 'error');
