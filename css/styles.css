@@ -17,7 +17,7 @@ html, body {
     padding: 0;
     background-color: var(--bg);
     color: var(--text);
-    font-family: 'Inter', -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+    font-family: 'Inter', -apple-system, BlinkMacSystemFont, \"Segoe UI\", Roboto, sans-serif;
     box-sizing: border-box;
 }
 
@@ -33,6 +33,8 @@ header {
     align-items: center;
     box-shadow: 0 4px 6px -1px rgba(0,0,0,0.1);
     width: 100%;
+    position: relative;
+    z-index: 20;
 }
 
 .logo-area h1 { margin: 0; font-size: 1.5rem; letter-spacing: -0.5px; }
@@ -43,6 +45,99 @@ main { padding: 3rem 5%; max-width: 1300px; margin: 0 auto; width: 100%; }
 
 .screen         { display: none; }
 .screen.visible { display: block; }
+
+/* ── Full Screen Auth Section Modifiers ───────────────────────────────────── */
+#auth-screen {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100vw;
+    height: 100vh;
+    padding: 0;
+    margin: 0;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    overflow: hidden;
+    background: #090d16;
+    z-index: 10;
+}
+
+/* ── Cinematic Motion Backdrop Component Engine ───────────────────────────── */
+.cyber-motion-container {
+    position: absolute;
+    inset: 0;
+    width: 100%;
+    height: 100%;
+    overflow: hidden;
+    background: radial-gradient(circle at 50% 50%, #0f172a 0%, #070a12 100%);
+    z-index: 1;
+}
+
+/* Moving Cybernetic Isometric Perspective Grid Mesh */
+.cyber-grid {
+    position: absolute;
+    width: 200%;
+    height: 200%;
+    top: -50%;
+    left: -50%;
+    background-image: 
+        linear-gradient(rgba(37, 99, 235, 0.05) 1px, transparent 1px),
+        linear-gradient(90deg, rgba(37, 99, 235, 0.05) 1px, transparent 1px);
+    background-size: 45px 45px;
+    transform: perspective(600px) rotateX(60deg);
+    animation: gridScroll 24s linear infinite;
+}
+
+/* Fluid Interstellar Radial Nebulas */
+.glow-orb {
+    position: absolute;
+    border-radius: 50%;
+    filter: blur(130px);
+    opacity: 0.35;
+    mix-blend-mode: screen;
+    pointer-events: none;
+}
+
+.orb-1 {
+    width: 500px;
+    height: 500px;
+    background: #1e1b4b;
+    top: -10%;
+    left: 10%;
+    animation: floatingOrbOne 18s ease-in-out infinite alternate;
+}
+
+.orb-2 {
+    width: 600px;
+    height: 600px;
+    background: #2563eb;
+    bottom: -20%;
+    right: 5%;
+    animation: floatingOrbTwo 22s ease-in-out infinite alternate;
+}
+
+.orb-3 {
+    width: 400px;
+    height: 400px;
+    background: #4f46e5;
+    top: 40%;
+    left: 45%;
+    animation: floatingOrbOne 14s ease-in-out infinite alternate-reverse;
+}
+
+/* Premium Ultra-Clear Glassmorphism Card Frame */
+.glass-card {
+    background: rgba(255, 255, 255, 0.82) !important;
+    backdrop-filter: blur(20px) saturate(180%);
+    -webkit-backdrop-filter: blur(20px) saturate(180%);
+    border: 1px solid rgba(255, 255, 255, 0.45) !important;
+    box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.5) !important;
+    position: relative;
+    z-index: 5;
+    transform: translateY(0);
+    animation: cardEntrance 0.8s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+}
 
 /* ── Cards ────────────────────────────────────────────────────────────────── */
 .card {
@@ -97,7 +192,6 @@ input:focus, select:focus, textarea:focus {
 .btn-danger           { background: #ef4444; color: white; }
 .btn-danger:hover     { background: #dc2626; }
 
-/* Outlined danger button — used for "Delete Account" in profile */
 .btn-danger-outline {
     background: transparent;
     border: 1px solid #ef4444;
@@ -182,13 +276,13 @@ input:focus, select:focus, textarea:focus {
 .modal-overlay {
     position: fixed;
     inset: 0;
-    background: rgba(15, 23, 42, 0.55);
+    background: rgba(15, 23, 42, 0.75);
     z-index: 1000;
     display: flex;
     align-items: center;
     justify-content: center;
     padding: 1rem;
-    backdrop-filter: blur(2px);
+    backdrop-filter: blur(4px);
 }
 
 .modal-box {
@@ -258,6 +352,27 @@ input:focus, select:focus, textarea:focus {
 .skills-wrapper  { display: flex; flex-wrap: wrap; gap: 6px; margin-bottom: 1.25rem; }
 .skill-badge     { background: #f1f5f9; color: var(--text-muted); padding: 0.2rem 0.6rem; border-radius: 50px; font-size: 0.8rem; font-weight: 500; }
 .empty-notice    { text-align: center; color: var(--text-muted); grid-column: 1 / -1; padding: 3rem; font-size: 1.1rem; }
+
+/* ── Animation Vectors ────────────────────────────────────────────────────── */
+@keyframes gridScroll {
+    0% { background-position: 0 0; }
+    100% { background-position: 0 1080px; }
+}
+
+@keyframes floatingOrbOne {
+    0% { transform: translate(0, 0) scale(1); }
+    100% { transform: translate(60px, 40px) scale(1.15); }
+}
+
+@keyframes floatingOrbTwo {
+    0% { transform: translate(0, 0) scale(1.1); }
+    100% { transform: translate(-80px, -50px) scale(0.9); }
+}
+
+@keyframes cardEntrance {
+    0% { opacity: 0; transform: scale(0.96) translateY(15px); }
+    100% { opacity: 1; transform: scale(1) translateY(0); }
+}
 
 /* ── Mobile responsive ────────────────────────────────────────────────────── */
 @media (max-width: 768px) {

@@ -8,10 +8,8 @@
 </head>
 <body>
 
-    <!-- ── Toast notification container ── -->
     <div id="toast-container"></div>
 
-    <!-- ── Forgot Password Modal ── -->
     <div id="forgot-modal" class="modal-overlay" style="display:none;">
         <div class="modal-box">
             <button class="modal-close" onclick="closeForgotModal()">&#x2715;</button>
@@ -25,7 +23,6 @@
         </div>
     </div>
 
-    <!-- ── Reset Password Modal (shown when ?reset=TOKEN in URL) ── -->
     <div id="reset-modal" class="modal-overlay" style="display:none;">
         <div class="modal-box">
             <h3>Set a new password</h3>
@@ -42,7 +39,6 @@
         </div>
     </div>
 
-    <!-- ── Delete Account Confirmation Modal ── -->
     <div id="delete-modal" class="modal-overlay" style="display:none;">
         <div class="modal-box">
             <h3 style="color:#ef4444;">Delete your account</h3>
@@ -68,19 +64,23 @@
 
     <main id="main-content">
 
-        <!-- ── Auth Screen ── -->
         <section id="auth-screen" class="screen visible">
-            <div class="card card-center">
+            <div class="cyber-motion-container">
+                <div class="cyber-grid"></div>
+                <div class="glow-orb orb-1"></div>
+                <div class="glow-orb orb-2"></div>
+                <div class="glow-orb orb-3"></div>
+            </div>
+
+            <div class="card card-center glass-card">
                 <h2>Welcome to Go-Work</h2>
                 <p style="color:#64748b;margin-bottom:1.5rem;">Connect with professional freelancers and businesses across Nigeria.</p>
 
-                <!-- Tab switcher -->
                 <div class="auth-tabs">
                     <button id="tab-login"    class="auth-tab active" onclick="switchTab('login')">Log In</button>
                     <button id="tab-register" class="auth-tab"        onclick="switchTab('register')">Create Account</button>
                 </div>
 
-                <!-- Login form -->
                 <div id="login-form">
                     <div class="form-group">
                         <label>Username or Email</label>
@@ -96,7 +96,6 @@
                     </p>
                 </div>
 
-                <!-- Register form -->
                 <div id="register-form" style="display:none;">
                     <div class="form-group">
                         <label>Username</label>
@@ -122,7 +121,6 @@
             </div>
         </section>
 
-        <!-- ── Client Screen ── -->
         <section id="client-screen" class="screen">
             <div class="search-filter-bar">
                 <h2>Find Professional Freelancers</h2>
@@ -134,7 +132,6 @@
             <div id="worker-grid" class="grid-layout"></div>
         </section>
 
-        <!-- ── Worker Screen ── -->
         <section id="worker-screen" class="screen">
             <div class="dashboard-container">
                 <div class="card">
@@ -179,30 +176,25 @@
     <script src="js/api.js"></script>
 
     <script>
-        // ── On page load ──────────────────────────────────────────────────────
         window.addEventListener('DOMContentLoaded', () => {
             renderNavigation();
-            checkResetToken();   // check URL for ?reset= before anything else
+            checkResetToken();
             checkExistingSession();
         });
 
-        // ── Toast system (replaces all alert() calls) ─────────────────────────
         function showToast(message, type = 'info') {
             const container = document.getElementById('toast-container');
             const toast = document.createElement('div');
             toast.className = `toast toast-${type}`;
             toast.textContent = message;
             container.appendChild(toast);
-            // Animate in
             setTimeout(() => toast.classList.add('toast-visible'), 10);
-            // Animate out and remove
             setTimeout(() => {
                 toast.classList.remove('toast-visible');
                 setTimeout(() => toast.remove(), 400);
             }, 4000);
         }
 
-        // ── Tab switcher ──────────────────────────────────────────────────────
         function switchTab(tab) {
             const isLogin = tab === 'login';
             document.getElementById('login-form').style.display    = isLogin ? 'block' : 'none';
@@ -211,7 +203,6 @@
             document.getElementById('tab-register').classList.toggle('active', !isLogin);
         }
 
-        // ── Session & routing ─────────────────────────────────────────────────
         function checkExistingSession() {
             const token = localStorage.getItem('token');
             const role  = localStorage.getItem('role');
@@ -255,7 +246,6 @@
             }
         }
 
-        // ── Auth actions ──────────────────────────────────────────────────────
         async function handleRegister() {
             const username = document.getElementById('reg-username').value.trim();
             const email    = document.getElementById('reg-email').value.trim();
@@ -276,7 +266,6 @@
                 const data = await registerUser(username, email, password, role);
                 if (data.error) return showToast(data.error, 'error');
                 showToast(data.message, 'success');
-                // Auto-switch to login tab
                 document.getElementById('login-username').value = username;
                 switchTab('login');
             } catch (err) {
@@ -309,7 +298,6 @@
             document.getElementById('login-password').value = '';
         }
 
-        // ── Forgot password flow ──────────────────────────────────────────────
         function openForgotModal() {
             document.getElementById('forgot-modal').style.display = 'flex';
             document.getElementById('forgot-email').focus();
@@ -332,17 +320,13 @@
             }
         }
 
-        // ── Reset password flow (triggered by ?reset=TOKEN in URL) ───────────
         function checkResetToken() {
             const params = new URLSearchParams(window.location.search);
             const token  = params.get('reset');
             if (!token) return;
 
-            // Store token for use when the form is submitted
             window._resetToken = token;
             document.getElementById('reset-modal').style.display = 'flex';
-
-            // Clean the URL so the token isn't visible / reused
             window.history.replaceState({}, '', '/');
         }
 
@@ -365,7 +349,6 @@
             }
         }
 
-        // ── Delete account ────────────────────────────────────────────────────
         async function handleDeleteAccount() {
             const input = document.getElementById('delete-confirm-input').value.trim();
             if (input !== 'DELETE') {
@@ -383,7 +366,6 @@
             }
         }
 
-        // ── Worker dashboard ──────────────────────────────────────────────────
         async function loadWorkerDashboardData() {
             try {
                 const data = await getMyProfile();
@@ -419,7 +401,6 @@
             }
         }
 
-        // ── Discovery feed ────────────────────────────────────────────────────
         async function loadDiscoveryFeed() {
             const skillQuery = document.getElementById('filter-skill').value;
             const rateQuery  = document.getElementById('filter-rate').value;
