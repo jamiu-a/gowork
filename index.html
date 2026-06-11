@@ -180,7 +180,7 @@
     <script>
         window.addEventListener('DOMContentLoaded', () => {
             renderNavigation();
-            checkResetToken();
+            checkResetToken();   
             checkExistingSession();
         });
 
@@ -284,6 +284,10 @@
             try {
                 const data = await loginUser(username, password);
                 if (data.token) {
+                    // Update session data immediately to avoid looping states
+                    localStorage.setItem('token', data.token);
+                    localStorage.setItem('role', data.role);
+                    localStorage.setItem('username', data.username);
                     checkExistingSession();
                 } else {
                     showToast(data.error || 'Login failed. Check your credentials.', 'error');
