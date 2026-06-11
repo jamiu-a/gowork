@@ -7,6 +7,57 @@
     <link rel="stylesheet" href="css/styles.css">
 </head>
 <body>
+
+    <!-- ── Toast notification container ── -->
+    <div id="toast-container"></div>
+
+    <!-- ── Forgot Password Modal ── -->
+    <div id="forgot-modal" class="modal-overlay" style="display:none;">
+        <div class="modal-box">
+            <button class="modal-close" onclick="closeForgotModal()">&#x2715;</button>
+            <h3>Reset your password</h3>
+            <p style="color:#64748b;margin-bottom:1.25rem;font-size:0.9rem;">Enter the email address on your account and we'll send you a reset link.</p>
+            <div class="form-group">
+                <label>Email address</label>
+                <input type="email" id="forgot-email" placeholder="you@example.com">
+            </div>
+            <button class="btn btn-primary" style="width:100%;" onclick="handleForgotPassword()">Send Reset Link</button>
+        </div>
+    </div>
+
+    <!-- ── Reset Password Modal (shown when ?reset=TOKEN in URL) ── -->
+    <div id="reset-modal" class="modal-overlay" style="display:none;">
+        <div class="modal-box">
+            <h3>Set a new password</h3>
+            <p style="color:#64748b;margin-bottom:1.25rem;font-size:0.9rem;">Choose a new password for your account. Must be at least 6 characters.</p>
+            <div class="form-group">
+                <label>New password</label>
+                <input type="password" id="reset-new-password" placeholder="New password">
+            </div>
+            <div class="form-group">
+                <label>Confirm new password</label>
+                <input type="password" id="reset-confirm-password" placeholder="Confirm password">
+            </div>
+            <button class="btn btn-primary" style="width:100%;" onclick="handleResetPassword()">Update Password</button>
+        </div>
+    </div>
+
+    <!-- ── Delete Account Confirmation Modal ── -->
+    <div id="delete-modal" class="modal-overlay" style="display:none;">
+        <div class="modal-box">
+            <h3 style="color:#ef4444;">Delete your account</h3>
+            <p style="color:#64748b;margin-bottom:1.25rem;font-size:0.9rem;">This will permanently erase your account, profile, and all data. <strong>This cannot be undone.</strong></p>
+            <div class="form-group">
+                <label>Type <strong>DELETE</strong> to confirm</label>
+                <input type="text" id="delete-confirm-input" placeholder="DELETE">
+            </div>
+            <div class="button-row">
+                <button class="btn btn-secondary" style="flex:1;" onclick="document.getElementById('delete-modal').style.display='none'">Cancel</button>
+                <button class="btn btn-danger" style="flex:1;" onclick="handleDeleteAccount()">Yes, delete my account</button>
+            </div>
+        </div>
+    </div>
+
     <header>
         <div class="logo-area">
             <h1>Go-Work</h1>
@@ -16,48 +67,80 @@
     </header>
 
     <main id="main-content">
+
+        <!-- ── Auth Screen ── -->
         <section id="auth-screen" class="screen visible">
             <div class="card card-center">
                 <h2>Welcome to Go-Work</h2>
-                <p style="color: #666; margin-bottom: 20px;">Join our community of professional freelancers and businesses</p>
-                <div class="form-group">
-                    <label>Username</label>
-                    <input type="text" id="username" placeholder="Enter username">
+                <p style="color:#64748b;margin-bottom:1.5rem;">Connect with professional freelancers and businesses across Nigeria.</p>
+
+                <!-- Tab switcher -->
+                <div class="auth-tabs">
+                    <button id="tab-login"    class="auth-tab active" onclick="switchTab('login')">Log In</button>
+                    <button id="tab-register" class="auth-tab"        onclick="switchTab('register')">Create Account</button>
                 </div>
-                <div class="form-group">
-                    <label>Password</label>
-                    <input type="password" id="password" placeholder="Enter password">
+
+                <!-- Login form -->
+                <div id="login-form">
+                    <div class="form-group">
+                        <label>Username or Email</label>
+                        <input type="text" id="login-username" placeholder="Enter username or email">
+                    </div>
+                    <div class="form-group">
+                        <label>Password</label>
+                        <input type="password" id="login-password" placeholder="Enter password" onkeydown="if(event.key==='Enter') handleLogin()">
+                    </div>
+                    <button class="btn btn-primary" style="width:100%;margin-bottom:0.75rem;" onclick="handleLogin()">Log In</button>
+                    <p style="text-align:center;font-size:0.85rem;">
+                        <a href="#" onclick="openForgotModal()" style="color:#2563eb;text-decoration:none;">Forgot your password?</a>
+                    </p>
                 </div>
-                <div class="form-group" id="role-container">
-                    <label>Account Type</label>
-                    <select id="role">
-                        <option value="worker">Freelancer (Looking for work)</option>
-                        <option value="client">Client (Looking to hire)</option>
-                    </select>
-                </div>
-                <div class="button-row">
-                    <button class="btn btn-primary" onclick="handleLogin()">Login</button>
-                    <button class="btn btn-secondary" onclick="handleRegister()">Register New Account</button>
+
+                <!-- Register form -->
+                <div id="register-form" style="display:none;">
+                    <div class="form-group">
+                        <label>Username</label>
+                        <input type="text" id="reg-username" placeholder="Choose a username">
+                    </div>
+                    <div class="form-group">
+                        <label>Email address</label>
+                        <input type="email" id="reg-email" placeholder="you@example.com">
+                    </div>
+                    <div class="form-group">
+                        <label>Password <span style="color:#94a3b8;font-weight:400;">(min. 6 characters)</span></label>
+                        <input type="password" id="reg-password" placeholder="Create a password">
+                    </div>
+                    <div class="form-group">
+                        <label>Account Type</label>
+                        <select id="reg-role">
+                            <option value="worker">Freelancer — I'm looking for work</option>
+                            <option value="client">Client — I'm looking to hire</option>
+                        </select>
+                    </div>
+                    <button class="btn btn-primary" style="width:100%;" onclick="handleRegister()">Create Account</button>
                 </div>
             </div>
         </section>
 
+        <!-- ── Client Screen ── -->
         <section id="client-screen" class="screen">
             <div class="search-filter-bar">
                 <h2>Find Professional Freelancers</h2>
                 <div class="filter-inputs">
-                    <input type="text" id="filter-skill" placeholder="Search by skill (e.g. Java, Design)" oninput="loadDiscoveryFeed()">
-                    <input type="number" id="filter-rate" placeholder="Max hourly rate (₦)" oninput="loadDiscoveryFeed()">
+                    <input type="text"   id="filter-skill" placeholder="Search by skill (e.g. Java, Design)" oninput="loadDiscoveryFeed()">
+                    <input type="number" id="filter-rate"  placeholder="Max hourly rate (₦)"                 oninput="loadDiscoveryFeed()">
                 </div>
             </div>
             <div id="worker-grid" class="grid-layout"></div>
         </section>
 
+        <!-- ── Worker Screen ── -->
         <section id="worker-screen" class="screen">
             <div class="dashboard-container">
                 <div class="card">
-                    <h2>Manage Your Professional Profile</h2>
-                    <p style="color: #666; margin-bottom: 20px;">Keep your profile up to date to attract clients.</p>
+                    <h2>Your Professional Profile</h2>
+                    <p style="color:#64748b;margin-bottom:1.5rem;">Keep your profile up to date to attract the right clients.</p>
+
                     <div class="form-row">
                         <div class="form-group">
                             <label>Full Display Name</label>
@@ -70,35 +153,68 @@
                     </div>
                     <div class="form-row">
                         <div class="form-group">
-                            <label>Core Skills (Separated by commas)</label>
-                            <input type="text" id="w-skills" placeholder="e.g. Linux, Cybersecurity">
+                            <label>Core Skills <span style="color:#94a3b8;font-weight:400;">(comma separated)</span></label>
+                            <input type="text" id="w-skills" placeholder="e.g. Linux, Cybersecurity, Python">
                         </div>
                         <div class="form-group">
-                            <label>Hourly Billing Rate (₦ / Hour)</label>
+                            <label>Hourly Rate <span style="color:#94a3b8;font-weight:400;">(₦ / hour)</span></label>
                             <input type="number" id="w-rate" placeholder="e.g. 5000">
                         </div>
                     </div>
                     <div class="form-group">
                         <label>Professional Biography</label>
-                        <textarea id="w-bio" rows="5" placeholder="Describe your experience..."></textarea>
+                        <textarea id="w-bio" rows="5" placeholder="Describe your experience, past projects, and what makes you stand out..."></textarea>
                     </div>
-                    <button class="btn btn-primary" onclick="handleSaveProfile()">Save and Publish Profile</button>
+
+                    <div style="display:flex;gap:12px;flex-wrap:wrap;margin-top:0.5rem;">
+                        <button class="btn btn-primary" onclick="handleSaveProfile()">Save and Publish Profile</button>
+                        <button class="btn btn-danger-outline" onclick="document.getElementById('delete-modal').style.display='flex'">Delete My Account</button>
+                    </div>
                 </div>
             </div>
         </section>
+
     </main>
 
     <script src="js/api.js"></script>
-    
+
     <script>
+        // ── On page load ──────────────────────────────────────────────────────
         window.addEventListener('DOMContentLoaded', () => {
             renderNavigation();
+            checkResetToken();   // check URL for ?reset= before anything else
             checkExistingSession();
         });
 
+        // ── Toast system (replaces all alert() calls) ─────────────────────────
+        function showToast(message, type = 'info') {
+            const container = document.getElementById('toast-container');
+            const toast = document.createElement('div');
+            toast.className = `toast toast-${type}`;
+            toast.textContent = message;
+            container.appendChild(toast);
+            // Animate in
+            setTimeout(() => toast.classList.add('toast-visible'), 10);
+            // Animate out and remove
+            setTimeout(() => {
+                toast.classList.remove('toast-visible');
+                setTimeout(() => toast.remove(), 400);
+            }, 4000);
+        }
+
+        // ── Tab switcher ──────────────────────────────────────────────────────
+        function switchTab(tab) {
+            const isLogin = tab === 'login';
+            document.getElementById('login-form').style.display    = isLogin ? 'block' : 'none';
+            document.getElementById('register-form').style.display = isLogin ? 'none'  : 'block';
+            document.getElementById('tab-login').classList.toggle('active',    isLogin);
+            document.getElementById('tab-register').classList.toggle('active', !isLogin);
+        }
+
+        // ── Session & routing ─────────────────────────────────────────────────
         function checkExistingSession() {
             const token = localStorage.getItem('token');
-            const role = localStorage.getItem('role');
+            const role  = localStorage.getItem('role');
             if (token && role) {
                 if (role === 'worker') {
                     showScreen('worker-screen');
@@ -112,25 +228,22 @@
             }
         }
 
-        // STABILIZED DISPLAY ROUTING FIX
         function showScreen(screenId) {
             document.querySelectorAll('.screen').forEach(s => s.classList.remove('visible'));
-            const activeScreen = document.getElementById(screenId);
-            if (activeScreen) {
-                activeScreen.classList.add('visible');
-            }
+            const target = document.getElementById(screenId);
+            if (target) target.classList.add('visible');
             renderNavigation();
         }
 
         function renderNavigation() {
-            const nav = document.getElementById('nav-links');
-            const token = localStorage.getItem('token');
-            const role = localStorage.getItem('role');
+            const nav      = document.getElementById('nav-links');
+            const token    = localStorage.getItem('token');
+            const role     = localStorage.getItem('role');
             const username = localStorage.getItem('username') || 'Account';
 
             if (token) {
                 nav.innerHTML = `
-                    <span class="user-badge">Logged in: <strong>${username}</strong></span>
+                    <span class="user-badge">Logged in as <strong>${username}</strong></span>
                     <div class="nav-buttons-group">
                         ${role === 'client' ? `<button class="btn btn-secondary nav-action" onclick="showScreen('client-screen'); loadDiscoveryFeed();">Find Talent</button>` : ''}
                         ${role === 'worker' ? `<button class="btn btn-secondary nav-action" onclick="showScreen('worker-screen'); loadWorkerDashboardData();">My Profile</button>` : ''}
@@ -142,88 +255,181 @@
             }
         }
 
+        // ── Auth actions ──────────────────────────────────────────────────────
         async function handleRegister() {
-            const u = document.getElementById('username').value;
-            const p = document.getElementById('password').value;
-            const r = document.getElementById('role').value;
-            if(!u || !p) return alert("Please fill in username and password fields.");
-            
+            const username = document.getElementById('reg-username').value.trim();
+            const email    = document.getElementById('reg-email').value.trim();
+            const password = document.getElementById('reg-password').value;
+            const role     = document.getElementById('reg-role').value;
+
+            if (!username || !email || !password) {
+                return showToast('Please fill in all fields.', 'error');
+            }
+            if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) {
+                return showToast('Please enter a valid email address.', 'error');
+            }
+            if (password.length < 6) {
+                return showToast('Password must be at least 6 characters.', 'error');
+            }
+
             try {
-                const data = await registerUser(u, p, r);
-                alert(data.message || data.error);
+                const data = await registerUser(username, email, password, role);
+                if (data.error) return showToast(data.error, 'error');
+                showToast(data.message, 'success');
+                // Auto-switch to login tab
+                document.getElementById('login-username').value = username;
+                switchTab('login');
             } catch (err) {
-                alert("Cannot connect to backend server. Ensure Render is running.");
+                showToast('Cannot connect to the server. Please try again.', 'error');
             }
         }
 
         async function handleLogin() {
-            const u = document.getElementById('username').value;
-            const p = document.getElementById('password').value;
-            if(!u || !p) return alert("Please fill in your credentials.");
+            const username = document.getElementById('login-username').value.trim();
+            const password = document.getElementById('login-password').value;
+
+            if (!username || !password) return showToast('Please enter your credentials.', 'error');
 
             try {
-                const data = await loginUser(u, p);
+                const data = await loginUser(username, password);
                 if (data.token) {
                     checkExistingSession();
                 } else {
-                    alert(data.error || "Login failed");
+                    showToast(data.error || 'Login failed. Check your credentials.', 'error');
                 }
             } catch (err) {
-                alert("Connection to backend failed.");
+                showToast('Connection to server failed. Please try again.', 'error');
             }
         }
 
         function handleLogout() {
             localStorage.clear();
             showScreen('auth-screen');
-            document.getElementById('username').value = '';
-            document.getElementById('password').value = '';
+            document.getElementById('login-username').value = '';
+            document.getElementById('login-password').value = '';
         }
 
+        // ── Forgot password flow ──────────────────────────────────────────────
+        function openForgotModal() {
+            document.getElementById('forgot-modal').style.display = 'flex';
+            document.getElementById('forgot-email').focus();
+        }
+
+        function closeForgotModal() {
+            document.getElementById('forgot-modal').style.display = 'none';
+        }
+
+        async function handleForgotPassword() {
+            const email = document.getElementById('forgot-email').value.trim();
+            if (!email) return showToast('Please enter your email address.', 'error');
+
+            try {
+                const data = await forgotPassword(email);
+                closeForgotModal();
+                showToast(data.message || data.error, data.error ? 'error' : 'success');
+            } catch (err) {
+                showToast('Connection failed. Please try again.', 'error');
+            }
+        }
+
+        // ── Reset password flow (triggered by ?reset=TOKEN in URL) ───────────
+        function checkResetToken() {
+            const params = new URLSearchParams(window.location.search);
+            const token  = params.get('reset');
+            if (!token) return;
+
+            // Store token for use when the form is submitted
+            window._resetToken = token;
+            document.getElementById('reset-modal').style.display = 'flex';
+
+            // Clean the URL so the token isn't visible / reused
+            window.history.replaceState({}, '', '/');
+        }
+
+        async function handleResetPassword() {
+            const newPassword     = document.getElementById('reset-new-password').value;
+            const confirmPassword = document.getElementById('reset-confirm-password').value;
+
+            if (!newPassword || !confirmPassword) return showToast('Please fill in both password fields.', 'error');
+            if (newPassword.length < 6) return showToast('Password must be at least 6 characters.', 'error');
+            if (newPassword !== confirmPassword) return showToast('Passwords do not match.', 'error');
+
+            try {
+                const data = await resetPassword(window._resetToken, newPassword);
+                if (data.error) return showToast(data.error, 'error');
+                document.getElementById('reset-modal').style.display = 'none';
+                showToast(data.message, 'success');
+                window._resetToken = null;
+            } catch (err) {
+                showToast('Connection failed. Please try again.', 'error');
+            }
+        }
+
+        // ── Delete account ────────────────────────────────────────────────────
+        async function handleDeleteAccount() {
+            const input = document.getElementById('delete-confirm-input').value.trim();
+            if (input !== 'DELETE') {
+                return showToast('Type DELETE exactly to confirm.', 'error');
+            }
+
+            try {
+                const data = await deleteAccountPermanently();
+                if (data.error) return showToast(data.error, 'error');
+                document.getElementById('delete-modal').style.display = 'none';
+                showToast(data.message, 'success');
+                setTimeout(handleLogout, 2000);
+            } catch (err) {
+                showToast('Connection failed. Please try again.', 'error');
+            }
+        }
+
+        // ── Worker dashboard ──────────────────────────────────────────────────
         async function loadWorkerDashboardData() {
             try {
                 const data = await getMyProfile();
-                if(data && !data.profileMissing) {
-                    document.getElementById('w-name').value = data.name || '';
-                    document.getElementById('w-title').value = data.title || '';
+                if (data && !data.profileMissing) {
+                    document.getElementById('w-name').value   = data.name  || '';
+                    document.getElementById('w-title').value  = data.title || '';
                     document.getElementById('w-skills').value = data.skills ? data.skills.join(', ') : '';
-                    document.getElementById('w-rate').value = data.rate || '';
-                    document.getElementById('w-bio').value = data.bio || '';
+                    document.getElementById('w-rate').value   = data.rate  || '';
+                    document.getElementById('w-bio').value    = data.bio   || '';
                 }
-            } catch(e) {}
+            } catch (e) {}
         }
 
         async function handleSaveProfile() {
             const profile = {
-                name: document.getElementById('w-name').value,
-                title: document.getElementById('w-title').value,
-                skills: document.getElementById('w-skills').value,
-                rate: document.getElementById('w-rate').value,
-                bio: document.getElementById('w-bio').value
+                name:   document.getElementById('w-name').value.trim(),
+                title:  document.getElementById('w-title').value.trim(),
+                skills: document.getElementById('w-skills').value.trim(),
+                rate:   document.getElementById('w-rate').value,
+                bio:    document.getElementById('w-bio').value.trim()
             };
 
-            if(!profile.name || !profile.skills || !profile.rate) {
-                return alert("Display Name, Skills, and Hourly Rate are required.");
+            if (!profile.name || !profile.skills || !profile.rate) {
+                return showToast('Display name, skills, and hourly rate are required.', 'error');
             }
 
             try {
                 const data = await saveProfile(profile);
-                alert(data.message || "Profile updated!");
-            } catch(e) {
-                alert("Error saving profile data.");
+                if (data.error) return showToast(data.error, 'error');
+                showToast(data.message || 'Profile saved!', 'success');
+            } catch (e) {
+                showToast('Error saving profile. Please try again.', 'error');
             }
         }
 
+        // ── Discovery feed ────────────────────────────────────────────────────
         async function loadDiscoveryFeed() {
             const skillQuery = document.getElementById('filter-skill').value;
-            const rateQuery = document.getElementById('filter-rate').value;
-            const grid = document.getElementById('worker-grid');
+            const rateQuery  = document.getElementById('filter-rate').value;
+            const grid       = document.getElementById('worker-grid');
 
             try {
                 const workers = await getWorkers(skillQuery, rateQuery);
-                
-                if(!workers || workers.length === 0) {
-                    grid.innerHTML = `<div class="empty-notice">No professional talent matches your search.</div>`;
+
+                if (!workers || workers.length === 0) {
+                    grid.innerHTML = `<div class="empty-notice">No freelancers match your search. Try adjusting the filters.</div>`;
                     return;
                 }
 
@@ -234,15 +440,15 @@
                             <span class="rate-tag">₦${w.rate.toLocaleString()}/hr</span>
                         </div>
                         <h4 class="profile-title">${w.title}</h4>
-                        <p class="profile-bio">${w.bio || 'No background description provided yet.'}</p>
+                        <p class="profile-bio">${w.bio || 'No biography provided yet.'}</p>
                         <div class="skills-wrapper">
                             ${w.skills.map(skill => `<span class="skill-badge">${skill}</span>`).join('')}
                         </div>
-                        <button class="btn btn-primary" onclick="alert('Contact feature coming soon!')">Hire Professional</button>
+                        <button class="btn btn-primary" onclick="showToast('Hiring feature coming in Phase 3!', 'info')">Hire Professional</button>
                     </div>
                 `).join('');
-            } catch(e) {
-                grid.innerHTML = `<div class="empty-notice" style="color:red;">Error updating talent pool.</div>`;
+            } catch (e) {
+                grid.innerHTML = `<div class="empty-notice" style="color:#ef4444;">Could not load talent. Please refresh the page.</div>`;
             }
         }
     </script>
